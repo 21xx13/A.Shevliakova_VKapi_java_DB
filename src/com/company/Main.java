@@ -52,12 +52,23 @@ public class Main {
                     preparedStatement.executeUpdate();
                 }
             }
-            String sqlSelect = String.format("SELECT * FROM %s", nameTable);
+
+            // ===== Stream =====
+            // запрос к БД
+            String sqlSelect = String.format("SELECT * FROM %s WHERE IdUser='%d'", nameTable, 85225806);
             Statement st = conn.createStatement();
             ResultSet result = st.executeQuery(sqlSelect);
+            // запись результата в словарь
+            Map<String, Integer> resultMap = new HashMap<>();
             while (result.next()) {
-                System.out.printf("Город: %s, Количество друзей в данном городе: %s\n",
-                        result.getString("CityName"), result.getString("CountFriends"));
+                resultMap.put(result.getString("CityName"), result.getInt("CountFriends"));
+            }
+
+            // выбор информации из словаря при помощи stream() - выбор городов с численностью друзей более 5
+            Object[] names = resultMap.keySet().stream().filter( x -> resultMap.get(x) > 5).sorted().toArray();
+            // вывод
+            for (Object n : names){
+                System.out.println(n.toString());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -114,6 +125,7 @@ public class Main {
         }
         return result;
     }
+
     // получение JSONObject из словаря
     public static JSONObject jsonFromDict(Map<String, CityInfo> cityDict) throws JSONException {
         JSONArray array = new JSONArray();
